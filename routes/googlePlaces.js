@@ -1,32 +1,30 @@
 const express = require("express");
 const router = express.Router();
+const Place = require("../models/Place"); // Ensure the Place model is correct
 
-router.get("/nearbyplaces", async (req, res) => {
-    const { location, radius, type } = req.query;
-    if (!location || !radius || !type) {
-        return res.status(400).json({ error: "Missing required query parameters" });
+// Update offer route
+router.post("/updateOffer", async (req, res) => {
+    const { placeId, offer } = req.body;
+
+    if (!placeId || !offer) {
+        return res.status(400).json({ error: "placeId and offer are required" });
     }
 
     try {
-        const response = await axios.get(`https://maps.googleapis.com/maps/api/place/nearbysearch/json`, {
-            params: {
-                location,
-                radius,
-                type,
-                key: process.env.GOOGLE_MAPS_API_KEY,
-            },
+        // Update or create a place with the offer
+        const updatedPlace = await Place.findOneAndUpdate(
+            { placeId },
+            { offer },
+            { new: true, upsert: true } // Create new entry if it doesn't exist
+        );
+
+        res.status(200).json({
+            message: "Offer updated successfully",
+            updatedPlace,
         });
-        const places = response.data.results.map((place) => ({
-            name: place.name,
-            latitude: place.geometry?.location?.lat,
-            longitude: place.geometry?.location?.lng,
-            placeId: place.place_id,
-            offer: "", // Default no offer
-        }));
-        res.json(places);
     } catch (error) {
-        console.error("Error fetching places:", error.message);
-        res.status(500).json({ error: "Failed to fetch places" });
+        console.error("Error updating offer:", error);
+        res.status(500).json({ error: "Failed to update offer" });
     }
 });
 

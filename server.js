@@ -19,15 +19,17 @@ mongoose
         console.error("Error connecting to MongoDB:", err.message);
         process.exit(1); // Exit if connection fails
     });
-const googlePlacesRoute = require("./routes/googlePlaces");
-app.use("/api", googlePlacesRoute);
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
-app.use("/api/shops", require("./routes/shops"));
-app.use("/api", require("./routes/googlePlaces"));
+const googlePlacesRoute = require("./routes/googlePlaces"); // Import the googlePlaces route
+const shopsRoute = require("./routes/shops"); // Import the shops route
 
+app.use("/api", googlePlacesRoute); // Attach googlePlaces routes to /api
+app.use("/api/shops", shopsRoute); // Attach shops routes to /api/shops
+
+// Start server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

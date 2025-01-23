@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Place = require("../models/Place"); // Ensure the Place model is correct
 
-// POST route to update an offer
+// Update offer route
 router.post("/updateOffer", async (req, res) => {
     const { placeId, offer } = req.body;
 
@@ -11,11 +11,11 @@ router.post("/updateOffer", async (req, res) => {
     }
 
     try {
-        // Update or insert the offer
+        // Update or create a place with the offer
         const updatedPlace = await Place.findOneAndUpdate(
             { placeId },
             { offer },
-            { new: true, upsert: true }
+            { new: true, upsert: true } // Create new entry if it doesn't exist
         );
 
         res.status(200).json({
@@ -24,7 +24,7 @@ router.post("/updateOffer", async (req, res) => {
         });
     } catch (error) {
         console.error("Error updating offer:", error);
-        res.status(500).json({ error: "Failed to update the offer" });
+        res.status(500).json({ error: "Failed to update offer" });
     }
 });
 
