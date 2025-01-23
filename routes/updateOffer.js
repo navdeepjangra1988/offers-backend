@@ -1,29 +1,30 @@
 const express = require("express");
 const router = express.Router();
-const Place = require("../models/Place"); // Import Place model
+const Place = require("../models/Place");
 
+// Route to update offers
 router.post("/updateOffer", async (req, res) => {
-    const { placeId, offer } = req.body;
-
-    if (!placeId || !offer) {
-        return res.status(400).json({ error: "placeId and offer are required." });
-    }
-
     try {
+        const { placeId, offer } = req.body;
+
+        if (!placeId || !offer) {
+            return res.status(400).json({ error: "Missing placeId or offer in the request body" });
+        }
+
+        console.log("Updating offer for:", { placeId, offer });
+
         const updatedPlace = await Place.findOneAndUpdate(
             { placeId },
             { offer },
-            { new: true, upsert: true } // `upsert` ensures a new record is created if it doesn't exist
+            { new: true, upsert: true } // Upsert ensures the record is created if it doesn't exist
         );
 
-        if (!updatedPlace) {
-            return res.status(404).json({ error: "Place not found." });
-        }
+        console.log("Updated Place:", updatedPlace);
 
-        res.status(200).json({ message: "Offer updated successfully.", updatedPlace });
+        res.json({ message: "Offer updated successfully", updatedPlace });
     } catch (error) {
-        console.error("Error updating offer:", error);
-        res.status(500).json({ error: "Failed to update the offer." });
+        console.error("Error in /updateOffer:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
