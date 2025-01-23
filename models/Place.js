@@ -5,7 +5,8 @@ const PlaceSchema = new mongoose.Schema({
     name: { type: String, required: true },
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
-    offer: { type: String }, // Optional
+    offer: { type: String }, // Ensure `offer` field exists
 });
 
 module.exports = mongoose.model("Place", PlaceSchema);
+

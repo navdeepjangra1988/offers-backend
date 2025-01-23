@@ -1,40 +1,42 @@
 const express = require("express");
-const router = express.Router();
 const axios = require("axios");
+const router = express.Router();
+const Bottleneck = require("bottleneck");
 
+// Create a limiter
+const limiter = new Bottleneck({
+    maxConcurrent: 1, // Only 1 request at a time
+    minTime: 200, // 200ms between requests
+});
+
+// Wrap the API call using the limiter
+const fetchGooglePlaces = (params) => {
+    return limiter.schedule(() =>
+        axios.get("https://maps.googleapis.com/maps/api/place/nearbysearch/json", { params })
+    );
+};
+
+// Google Places API route
 router.get("/nearbyplaces", async (req, res) => {
     const { location, radius, type } = req.query;
 
     if (!location || !radius || !type) {
-        return res.status(400).json({ error: "Missing required parameters" });
+        return res.status(400).json({ error: "Missing required query parameters." });
     }
 
     try {
-        const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Set your API key in `.env`
-        const response = await axios.get(
-            `https://maps.googleapis.com/maps/api/place/nearbysearch/json`,
-            {
-                params: {
-                    location,
-                    radius,
-                    type,
-                    key: apiKey,
-                },
-            }
-        );
+        const response = await fetchGooglePlaces({
+            location,
+            radius,
+            type,
+            key: process.env.GOOGLE_API_KEY,
+        });
 
-        const places = response.data.results.map((place) => ({
-            placeId: place.place_id,
-            name: place.name,
-            latitude: place.geometry?.location?.lat || null,
-            longitude: place.geometry?.location?.lng || null,
-            offer: "No offer available",
-        }));
-
+        const places = response.data.results;
         res.json(places);
     } catch (error) {
-        console.error("Error fetching places from Google:", error);
-        res.status(500).json({ error: "Failed to fetch places from Google API" });
+        console.error("Error fetching nearby places:", error);
+        res.status(500).json({ error: "Failed to fetch nearby places." });
     }
 });
 
