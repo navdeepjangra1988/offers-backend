@@ -19,6 +19,8 @@ mongoose
         console.error("Error connecting to MongoDB:", err.message);
         process.exit(1); // Exit if connection fails
     });
+const googlePlacesRoute = require("./routes/googlePlaces");
+app.use("/api", googlePlacesRoute);
 
 // Middleware
 app.use(cors());
