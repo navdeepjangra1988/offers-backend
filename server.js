@@ -6,18 +6,17 @@ const bodyParser = require("body-parser");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
 
-// Connect to MongoDB
+// MongoDB connection
 mongoose
-    .connect(MONGO_URI, {
+    .connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
-    .then(() => console.log("MongoDB connected successfully"))
+    .then(() => console.log("MongoDB connected"))
     .catch((err) => {
-        console.error("Error connecting to MongoDB:", err.message);
-        process.exit(1); // Exit if connection fails
+        console.error("MongoDB connection error:", err.message);
+        process.exit(1); // Exit the process on MongoDB connection error
     });
 
 // Middleware
@@ -25,11 +24,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Routes
-const googlePlacesRoute = require("./routes/googlePlaces"); // Import the googlePlaces route
-const shopsRoute = require("./routes/shops"); // Import the shops route
-
-app.use("/api", googlePlacesRoute); // Attach googlePlaces routes to /api
-app.use("/api/shops", shopsRoute); // Attach shops routes to /api/shops
+app.use("/api", require("./routes/googlePlaces")); // Nearby places route
+app.use("/api", require("./routes/updateOffer")); // Update offer route
 
 // Start server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
