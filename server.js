@@ -1,22 +1,19 @@
 const express = require("express");
-const cors = require("cors");
+const connectDB = require("./config/db");
 const bodyParser = require("body-parser");
-require("dotenv").config();
-
-const googlePlacesRoute = require("./routes/googlePlaces");
+const cors = require("cors");
 
 const app = express();
 
+// Connect to MongoDB
+connectDB();
+
 // Middleware
-app.use(cors());
 app.use(bodyParser.json());
+app.use(cors());
 
 // Routes
-app.use("/api", googlePlacesRoute);
+app.use("/api", require("./routes/updateOffer")); // Ensure this points to the correct file
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
-const connectDB = require("./config/db");
-connectDB();
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
