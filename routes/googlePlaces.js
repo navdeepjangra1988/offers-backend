@@ -1,3 +1,7 @@
+const express = require("express");
+const router = express.Router();
+
+// Example route for `/nearbyplaces`
 router.get("/nearbyplaces", async (req, res) => {
     try {
         const { location, radius, type } = req.query;
@@ -6,16 +10,16 @@ router.get("/nearbyplaces", async (req, res) => {
             return res.status(400).json({ error: "Missing required query parameters." });
         }
 
-        // Simulate fetching nearby places (Replace this with actual logic)
-        const nearbyPlaces = []; // Replace this with actual API/service logic
+        // Simulating data (replace this with actual logic)
+        const nearbyPlaces = [
+            { name: "Sample Place", latitude: 28.6139, longitude: 77.209, offer: "10% Off" },
+        ];
 
-        if (!nearbyPlaces || nearbyPlaces.length === 0) {
-            return res.status(200).json([]); // Return an empty array for no results
-        }
-
-        res.status(200).json(nearbyPlaces); // Return places if available
+        res.status(200).json(nearbyPlaces);
     } catch (error) {
         console.error("Error fetching nearby places:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+module.exports = router;
